@@ -62,7 +62,7 @@ class ImagePaths(Dataset):
 
 class GoesNumpyDataset(Dataset):
 
-    def __init__(self, paths, size=None, x_channels=[3,4,5,6,7,8], y_channels=[1,9,0]):
+    def __init__(self, paths, size=None, x_channels=[6,7,8], y_channels=[1,9,0]):
 
         self.paths = paths
         self.size = size

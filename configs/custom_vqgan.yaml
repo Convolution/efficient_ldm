@@ -10,7 +10,7 @@ model:
       double_z: False
       z_channels: 256
       resolution: 256
-      in_channels: 6
+      in_channels: 3
       out_ch: 3
       ch: 128
       ch_mult: [ 1,1,2,2,4]  # num_down = len(ch_mult)-1
@@ -30,8 +30,8 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 5
-    num_workers: 4
+    batch_size: 1
+    num_workers: 8
     train:
       target: taming.data.custom.CustomTrain
       params:
@@ -42,4 +42,10 @@ data:
       params:
         test_images_list_file: ./val_goes.txt
         size: 512
+
+lightning:
+  trainer:
+    max_epochs: 100
+    num_sanity_val_steps: 0
+    accumulate_grad_batches: 8
 

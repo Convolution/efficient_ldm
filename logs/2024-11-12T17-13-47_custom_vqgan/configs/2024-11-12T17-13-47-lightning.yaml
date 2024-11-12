@@ -1,0 +1,7 @@
+lightning:
+  trainer:
+    max_epochs: 100
+    num_sanity_val_steps: 0
+    accumulate_grad_batches: 8
+    distributed_backend: ddp
+    gpus: 0,

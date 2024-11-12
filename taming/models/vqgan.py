@@ -78,12 +78,7 @@ class VQModel(pl.LightningModule):
     def get_input(self, batch, input_key, target_key):
 
         x = batch[input_key]
-        print()
-        print(f'input shape: {x.shape}')
         y = batch[target_key]
-        print(f'target shape: {y.shape}')
-
-
 
         if len(x.shape) == 3:
 
@@ -117,6 +112,7 @@ class VQModel(pl.LightningModule):
             return discloss
 
     def validation_step(self, batch, batch_idx):
+
         x, y = self.get_input(batch, self.input_key, self.image_key)
         vis_rec, qloss = self(x)
         aeloss, log_dict_ae = self.loss(qloss, y, vis_rec, 0, self.global_step,
@@ -134,6 +130,7 @@ class VQModel(pl.LightningModule):
         return self.log_dict
 
     def configure_optimizers(self):
+
         lr = self.learning_rate
         opt_ae = torch.optim.Adam(list(self.encoder.parameters())+
                                   list(self.decoder.parameters())+
@@ -149,11 +146,12 @@ class VQModel(pl.LightningModule):
         return self.decoder.conv_out.weight
 
     def log_images(self, batch, **kwargs):
+
         log = dict()
-        _ , y = self.get_input(batch, self.input_key, self.image_key)
+        x , y = self.get_input(batch, self.input_key, self.image_key)
         y = y.to(self.device)
         vis_rec, _ = self(y)
-        if x.shape[1] > 3:
+        if y.shape[1] > 3:
             # colorize with random projection
             assert vis_rec.shape[1] > 3
             y = self.to_rgb(y)
@@ -163,6 +161,7 @@ class VQModel(pl.LightningModule):
         return log
 
     def to_rgb(self, x):
+
         assert self.image_key == "segmentation"
         if not hasattr(self, "colorize"):
             self.register_buffer("colorize", torch.randn(3, x.shape[1], 1, 1).to(x))
@@ -171,56 +170,56 @@ class VQModel(pl.LightningModule):
         return x
 
 
-class VQSegmentationModel(VQModel):
-    def __init__(self, n_labels, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.register_buffer("colorize", torch.randn(3, n_labels, 1, 1))
-
-    def configure_optimizers(self):
-        lr = self.learning_rate
-        opt_ae = torch.optim.Adam(list(self.encoder.parameters())+
-                                  list(self.decoder.parameters())+
-                                  list(self.quantize.parameters())+
-                                  list(self.quant_conv.parameters())+
-                                  list(self.post_quant_conv.parameters()),
-                                  lr=lr, betas=(0.5, 0.9))
-        return opt_ae
-
-    def training_step(self, batch, batch_idx):
-        x = self.get_input(batch, self.image_key)
-        xrec, qloss = self(x)
-        aeloss, log_dict_ae = self.loss(qloss, x, xrec, split="train")
-        self.log_dict(log_dict_ae, prog_bar=False, logger=True, on_step=True, on_epoch=True)
-        return aeloss
-
-    def validation_step(self, batch, batch_idx):
-        x = self.get_input(batch, self.image_key)
-        xrec, qloss = self(x)
-        aeloss, log_dict_ae = self.loss(qloss, x, xrec, split="val")
-        self.log_dict(log_dict_ae, prog_bar=False, logger=True, on_step=True, on_epoch=True)
-        total_loss = log_dict_ae["val/total_loss"]
-        self.log("val/total_loss", total_loss,
-                 prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=True)
-        return aeloss
-
-    @torch.no_grad()
-    def log_images(self, batch, **kwargs):
-        log = dict()
-        x = self.get_input(batch, self.image_key)
-        x = x.to(self.device)
-        xrec, _ = self(x)
-        if x.shape[1] > 3:
-            # colorize with random projection
-            assert xrec.shape[1] > 3
-            # convert logits to indices
-            xrec = torch.argmax(xrec, dim=1, keepdim=True)
-            xrec = F.one_hot(xrec, num_classes=x.shape[1])
-            xrec = xrec.squeeze(1).permute(0, 3, 1, 2).float()
-            x = self.to_rgb(x)
-            xrec = self.to_rgb(xrec)
-        log["inputs"] = x
-        log["reconstructions"] = xrec
-        return log
+# class VQSegmentationModel(VQModel):
+#     def __init__(self, n_labels, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.register_buffer("colorize", torch.randn(3, n_labels, 1, 1))
+#
+#     def configure_optimizers(self):
+#         lr = self.learning_rate
+#         opt_ae = torch.optim.Adam(list(self.encoder.parameters())+
+#                                   list(self.decoder.parameters())+
+#                                   list(self.quantize.parameters())+
+#                                   list(self.quant_conv.parameters())+
+#                                   list(self.post_quant_conv.parameters()),
+#                                   lr=lr, betas=(0.5, 0.9))
+#         return opt_ae
+#
+#     def training_step(self, batch, batch_idx):
+#         x = self.get_input(batch, self.image_key)
+#         xrec, qloss = self(x)
+#         aeloss, log_dict_ae = self.loss(qloss, x, xrec, split="train")
+#         self.log_dict(log_dict_ae, prog_bar=False, logger=True, on_step=True, on_epoch=True)
+#         return aeloss
+#
+#     def validation_step(self, batch, batch_idx):
+#         x = self.get_input(batch, self.image_key)
+#         xrec, qloss = self(x)
+#         aeloss, log_dict_ae = self.loss(qloss, x, xrec, split="val")
+#         self.log_dict(log_dict_ae, prog_bar=False, logger=True, on_step=True, on_epoch=True)
+#         total_loss = log_dict_ae["val/total_loss"]
+#         self.log("val/total_loss", total_loss,
+#                  prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=True)
+#         return aeloss
+#
+#     @torch.no_grad()
+#     def log_images(self, batch, **kwargs):
+#         log = dict()
+#         x = self.get_input(batch, self.image_key)
+#         x = x.to(self.device)
+#         xrec, _ = self(x)
+#         if x.shape[1] > 3:
+#             # colorize with random projection
+#             assert xrec.shape[1] > 3
+#             # convert logits to indices
+#             xrec = torch.argmax(xrec, dim=1, keepdim=True)
+#             xrec = F.one_hot(xrec, num_classes=x.shape[1])
+#             xrec = xrec.squeeze(1).permute(0, 3, 1, 2).float()
+#             x = self.to_rgb(x)
+#             xrec = self.to_rgb(xrec)
+#         log["inputs"] = x
+#         log["reconstructions"] = xrec
+#         return log
 
 
 class VQNoDiscModel(VQModel):
