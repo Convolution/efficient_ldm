@@ -18,6 +18,7 @@ class VQModel(pl.LightningModule):
                  ckpt_path=None,
                  ignore_keys=[],
                  image_key="image",
+                 input_key='input',
                  colorize_nlabels=None,
                  monitor=None,
                  remap=None,
@@ -25,6 +26,7 @@ class VQModel(pl.LightningModule):
                  ):
         super().__init__()
         self.image_key = image_key
+        self.input_key = input_key
         self.encoder = Encoder(**ddconfig)
         self.decoder = Decoder(**ddconfig)
         self.loss = instantiate_from_config(lossconfig)
@@ -73,20 +75,33 @@ class VQModel(pl.LightningModule):
         dec = self.decode(quant)
         return dec, diff
 
-    def get_input(self, batch, k):
-        x = batch[k]
+    def get_input(self, batch, input_key, target_key):
+
+        x = batch[input_key]
+        print()
+        print(f'input shape: {x.shape}')
+        y = batch[target_key]
+        print(f'target shape: {y.shape}')
+
+
+
         if len(x.shape) == 3:
+
             x = x[..., None]
+
         x = x.permute(0, 3, 1, 2).to(memory_format=torch.contiguous_format)
-        return x.float()
+        y = y.permute(0, 3, 1, 2).to(memory_format=torch.contiguous_format)
+        return x.float(), y.float()
 
     def training_step(self, batch, batch_idx, optimizer_idx):
-        x = self.get_input(batch, self.image_key)
-        xrec, qloss = self(x)
+
+        x, y = self.get_input(batch, self.input_key, self.image_key)
+
+        vis_rec, qloss = self(x)
 
         if optimizer_idx == 0:
             # autoencode
-            aeloss, log_dict_ae = self.loss(qloss, x, xrec, optimizer_idx, self.global_step,
+            aeloss, log_dict_ae = self.loss(qloss, y, vis_rec, optimizer_idx, self.global_step,
                                             last_layer=self.get_last_layer(), split="train")
 
             self.log("train/aeloss", aeloss, prog_bar=True, logger=True, on_step=True, on_epoch=True)
@@ -95,19 +110,19 @@ class VQModel(pl.LightningModule):
 
         if optimizer_idx == 1:
             # discriminator
-            discloss, log_dict_disc = self.loss(qloss, x, xrec, optimizer_idx, self.global_step,
+            discloss, log_dict_disc = self.loss(qloss, y, vis_rec, optimizer_idx, self.global_step,
                                             last_layer=self.get_last_layer(), split="train")
             self.log("train/discloss", discloss, prog_bar=True, logger=True, on_step=True, on_epoch=True)
             self.log_dict(log_dict_disc, prog_bar=False, logger=True, on_step=True, on_epoch=True)
             return discloss
 
     def validation_step(self, batch, batch_idx):
-        x = self.get_input(batch, self.image_key)
-        xrec, qloss = self(x)
-        aeloss, log_dict_ae = self.loss(qloss, x, xrec, 0, self.global_step,
+        x, y = self.get_input(batch, self.input_key, self.image_key)
+        vis_rec, qloss = self(x)
+        aeloss, log_dict_ae = self.loss(qloss, y, vis_rec, 0, self.global_step,
                                             last_layer=self.get_last_layer(), split="val")
 
-        discloss, log_dict_disc = self.loss(qloss, x, xrec, 1, self.global_step,
+        discloss, log_dict_disc = self.loss(qloss, y, vis_rec, 1, self.global_step,
                                             last_layer=self.get_last_layer(), split="val")
         rec_loss = log_dict_ae["val/rec_loss"]
         self.log("val/rec_loss", rec_loss,
@@ -135,16 +150,16 @@ class VQModel(pl.LightningModule):
 
     def log_images(self, batch, **kwargs):
         log = dict()
-        x = self.get_input(batch, self.image_key)
-        x = x.to(self.device)
-        xrec, _ = self(x)
+        _ , y = self.get_input(batch, self.input_key, self.image_key)
+        y = y.to(self.device)
+        vis_rec, _ = self(y)
         if x.shape[1] > 3:
             # colorize with random projection
-            assert xrec.shape[1] > 3
-            x = self.to_rgb(x)
-            xrec = self.to_rgb(xrec)
-        log["inputs"] = x
-        log["reconstructions"] = xrec
+            assert vis_rec.shape[1] > 3
+            y = self.to_rgb(y)
+            vis_rec = self.to_rgb(vis_rec)
+        log["inputs"] = y
+        log["reconstructions"] = vis_rec
         return log
 
     def to_rgb(self, x):

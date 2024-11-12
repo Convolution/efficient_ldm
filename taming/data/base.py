@@ -1,6 +1,7 @@
 import bisect
 import numpy as np
 import albumentations
+import cv2
 from PIL import Image
 from torch.utils.data import Dataset, ConcatDataset
 
@@ -57,6 +58,52 @@ class ImagePaths(Dataset):
         for k in self.labels:
             example[k] = self.labels[k][i]
         return example
+
+
+class GoesNumpyDataset(Dataset):
+
+    def __init__(self, paths, size=None, x_channels=[3,4,5,6,7,8], y_channels=[1,9,0]):
+
+        self.paths = paths
+        self.size = size
+        self._length = len(paths)
+        self.rescaler = albumentations.SmallestMaxSize(max_size=size, interpolation=cv2.INTER_CUBIC)
+
+        self.x_idxs = x_channels
+        self.y_idxs = y_channels
+
+    def __len__(self):
+        return self._length
+
+    def preprocess_image(self, image_path):
+        data = np.load(image_path).astype(np.float32)
+
+        # make input and output arrays
+        input = data[self.x_idxs]
+        output = data[self.y_idxs]
+
+        rescale_input = self.rescaler(image=input.transpose(1, 2, 0))["image"]
+        rescale_output = self.rescaler(image=output.transpose(1, 2, 0))["image"]
+
+        input = rescale_input
+        output = rescale_output
+
+        # clip values to [0, 1]
+        input = np.clip(input, 0, 1)
+        output = np.clip(output, 0, 1)
+
+        input = (2 * input - 1).astype(np.float32)
+        output = (2 * output - 1).astype(np.float32)
+
+        return input, output
+
+    def __getitem__(self, i):
+        # load data
+        data_path = self.paths[i]
+        input, output = self.preprocess_image(data_path)
+
+        return {"input": input, "target": output}
+
 
 
 class NumpyPaths(ImagePaths):

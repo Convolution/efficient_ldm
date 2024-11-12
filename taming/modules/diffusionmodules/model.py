@@ -352,6 +352,7 @@ class Encoder(nn.Module):
         self.in_channels = in_channels
 
         # downsampling
+        print(in_channels)
         self.conv_in = torch.nn.Conv2d(in_channels,
                                        self.ch,
                                        kernel_size=3,

@@ -142,6 +142,13 @@ def custom_collate(batch):
             if np_str_obj_array_pattern.search(elem.dtype.str) is not None:
                 raise TypeError(default_collate_err_msg_format.format(elem.dtype))
 
+            # If it's a tuple (input, target), handle them separately
+            if isinstance(batch[0], tuple):
+                # Assuming (input, target) pairs are in the batch
+                input_batch = [torch.as_tensor(item[0]) for item in batch]
+                target_batch = [torch.as_tensor(item[1]) for item in batch]
+                return (torch.stack(input_batch, 0), torch.stack(target_batch, 0))
+
             return custom_collate([torch.as_tensor(b) for b in batch])
         elif elem.shape == ():  # scalars
             return torch.as_tensor(batch)

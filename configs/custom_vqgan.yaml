@@ -4,11 +4,13 @@ model:
   params:
     embed_dim: 256
     n_embed: 1024
+    image_key: 'target'
+    input_key: 'input'
     ddconfig:
       double_z: False
       z_channels: 256
       resolution: 256
-      in_channels: 3
+      in_channels: 6
       out_ch: 3
       ch: 128
       ch_mult: [ 1,1,2,2,4]  # num_down = len(ch_mult)-1
@@ -29,15 +31,15 @@ data:
   target: main.DataModuleFromConfig
   params:
     batch_size: 5
-    num_workers: 8
+    num_workers: 4
     train:
       target: taming.data.custom.CustomTrain
       params:
-        training_images_list_file: ./xx_train.txt
-        size: 256
+        training_images_list_file: ./train_goes.txt
+        size: 512
     validation:
       target: taming.data.custom.CustomTest
       params:
-        test_images_list_file: ./xx_test.txt
-        size: 256
+        test_images_list_file: ./val_goes.txt
+        size: 512
 
