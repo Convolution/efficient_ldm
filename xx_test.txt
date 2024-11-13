@@ -1,0 +1,9 @@
+../shared_data/temp_dataset/jpeg/jpeg_output_39.jpg
+../shared_data/temp_dataset/jpeg/jpeg_output_42.jpg
+../shared_data/temp_dataset/jpeg/jpeg_output_4.jpg
+../shared_data/temp_dataset/jpeg/jpeg_output_3.jpg
+../shared_data/temp_dataset/jpeg/jpeg_output_14.jpg
+../shared_data/temp_dataset/jpeg/jpeg_output_13.jpg
+../shared_data/temp_dataset/jpeg/jpeg_output_28.jpg
+../shared_data/temp_dataset/jpeg/jpeg_output_26.jpg
+../shared_data/temp_dataset/jpeg/jpeg_output_21.jpg
