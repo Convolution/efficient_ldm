@@ -40,3 +40,16 @@ data:
       params:
         test_images_list_file: ./xx_test.txt
         size: 256
+
+    # lightning: (optional, has sane defaults and can be specified on cmdline)
+    #   trainer:
+    #       additional arguments to trainer
+    #   logger:
+    #       logger to instantiate
+    #   modelcheckpoint:
+    #       modelcheckpoint to instantiate
+    #   callbacks:
+    #       callback1:
+    #           target: importpath
+    #           params:
+    #               key: value

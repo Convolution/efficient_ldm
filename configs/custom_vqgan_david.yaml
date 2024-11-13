@@ -40,3 +40,12 @@ data:
       params:
         test_images_list_file: ./xx_test.txt
         size: 256
+
+lightning:
+  logger:
+    wandb:
+      target: pytorch_lightning.loggers.WandbLogger
+      params:
+        name: "david"
+        id: "id"
+        project: "VIS_MODEL"
