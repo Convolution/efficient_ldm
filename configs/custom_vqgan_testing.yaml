@@ -1,0 +1,55 @@
+model:
+  base_learning_rate: 0
+  target: taming.models.vqgan.VQModel
+  params:
+    #ckpt_path: 
+    embed_dim: 4
+    n_embed: 8192
+    image_key: 'input'
+    input_key: 'input'
+    ddconfig:
+      double_z: False
+      z_channels: 256
+      resolution: 512
+      in_channels: 3
+      out_ch: 3
+      ch: 128
+      ch_mult: [1,2,2,4]  # num_down = len(ch_mult)-1
+      num_res_blocks: 2
+      attn_resolutions: [64]
+      dropout: 0.2
+
+    lossconfig:
+      target: taming.modules.losses.vqperceptual.VQLPIPSWithDiscriminator
+      params:
+        disc_conditional: False
+        disc_in_channels: 3
+        disc_start: 0
+        disc_weight: 0.2
+        codebook_weight: 1.0
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 1
+    num_workers: 4
+    train:
+      target: taming.data.custom.CustomTrain
+      params:
+        training_images_list_file: ./tmp.txt
+        size: 512
+    validation:
+      target: taming.data.custom.CustomTest
+      params:
+        test_images_list_file: ./xx_test_daylight.txt
+        size: 512
+
+lightning:
+  trainer:
+    max_epochs: 1
+    num_sanity_val_steps: 0
+    accumulate_grad_batches: 1
+    gpus: 1  # or 'auto' to use all available GPUs
+    strategy: ddp  # or 'ddp_spawn', 'dp', etc., depending on your setup
+    num_nodes: 1
+    accelerator: ddp
