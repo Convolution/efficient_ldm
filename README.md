@@ -2,8 +2,8 @@
 ##### CSC2541 (Fall 2024)
 
 [**Taming Transformers for High-Resolution Image Synthesis**]([https://compvis.github.io/taming-transformers/](https://github.com/Convolution/efficient_ldm.git))<br/>
-[Mickell Als](https://github.com/mickyals)\*,
-[David Tomarov](https://github.com/Convolution)\<br/>
+[Mickell Als](https://github.com/mickyals),
+[David Tomarov](https://github.com/Convolution)
 
 **tl;dr** We replaced the generator of the model proposed in "Nighttime Reflectance Generation in the Visible" with a VQGAN, and created synthetic satellite images in the visible spectrum, from IR images.
 
