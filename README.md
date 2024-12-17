@@ -66,16 +66,3 @@ First, download the training dataset from []. To train the model, simply run `ba
 ## Data Preparation
 
 ## More Resources
-
-
-## BibTeX
-```
-@misc{esser2020taming,
-      title={Taming Transformers for High-Resolution Image Synthesis}, 
-      author={Patrick Esser and Robin Rombach and Björn Ommer},
-      year={2020},
-      eprint={2012.09841},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-```
