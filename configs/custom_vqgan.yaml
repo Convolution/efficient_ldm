@@ -2,6 +2,7 @@ model:
   base_learning_rate: 4.5e-6
   target: taming.models.vqgan.VQModel
   params:
+    #ckpt_path:
     embed_dim: 256
     n_embed: 1024
     image_key: 'target'
