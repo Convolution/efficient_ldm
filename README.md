@@ -5,11 +5,17 @@
 [Mickell Als](https://github.com/mickyals),
 [David Tomarov](https://github.com/Convolution)
 
-**![generated_visible_gs-000000_e-000000_b-000013](https://github.com/user-attachments/assets/4272fd72-19d6-4452-ac11-e0b789d03429)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4272fd72-19d6-4452-ac11-e0b789d03429" alt="Generated Visible" width="300">
+  <img src="https://github.com/user-attachments/assets/50b31793-ff64-47fb-9a4a-63307eea29b2" alt="IR Input" width="300">
+</p>
+
+
+![generated_visible_gs-000000_e-000000_b-000013](https://github.com/user-attachments/assets/4272fd72-19d6-4452-ac11-e0b789d03429)
 ![IR_input_gs-000000_e-000000_b-000013](https://github.com/user-attachments/assets/50b31793-ff64-47fb-9a4a-63307eea29b2)
 
 
-tl;dr** We replaced the generator of the model proposed in "Nighttime Reflectance Generation in the Visible" with a VQGAN, and created synthetic satellite images in the visible spectrum, from IR images.
+**tl;dr** We replaced the generator of the model proposed in "Nighttime Reflectance Generation in the Visible" with a VQGAN, and created synthetic satellite images in the visible spectrum, from IR images.
 
 ## Requirements
 A suitable [conda](https://conda.io/) environment named `taming` can be created
