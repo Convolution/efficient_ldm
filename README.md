@@ -5,7 +5,11 @@
 [Mickell Als](https://github.com/mickyals),
 [David Tomarov](https://github.com/Convolution)
 
-**tl;dr** We replaced the generator of the model proposed in "Nighttime Reflectance Generation in the Visible" with a VQGAN, and created synthetic satellite images in the visible spectrum, from IR images.
+**![generated_visible_gs-000000_e-000000_b-000013](https://github.com/user-attachments/assets/4272fd72-19d6-4452-ac11-e0b789d03429)
+![IR_input_gs-000000_e-000000_b-000013](https://github.com/user-attachments/assets/50b31793-ff64-47fb-9a4a-63307eea29b2)
+
+
+tl;dr** We replaced the generator of the model proposed in "Nighttime Reflectance Generation in the Visible" with a VQGAN, and created synthetic satellite images in the visible spectrum, from IR images.
 
 ## Requirements
 A suitable [conda](https://conda.io/) environment named `taming` can be created
@@ -54,3 +58,4 @@ Stored as 10x500x500 matrices
 2. run `python main.py --base configs/custom_vqgan.yaml -t True --gpus 0,1` to
    train on two GPUs. Use `--gpus 0,` (with a trailing comma) to train on a single GPU. Note there are other useful training arguments described within `main.py`
    Image logging by default is set to 1 but this can be changed to any number by specifying the `batch_frequency` within `main.py`
+
