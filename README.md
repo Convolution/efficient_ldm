@@ -74,7 +74,8 @@ Stored as 10x500x500 matrices
 
 ### Training
 1. To train your model, first adapt the `custom_vqgan.yaml` file.
-2. run `python main.py --base configs/custom_vqgan.yaml -t True --gpus 0,1` to
+2. To change your input and target variables, access `taming/data/base.py` and update the indices for `x_channels` and `y_channels` for `GoesNumpyDataset`
+3. run `python main.py --base configs/custom_vqgan.yaml -t True --gpus 0,1` to
    train on two GPUs. Use `--gpus 0,` (with a trailing comma) to train on a single GPU. Note there are other useful training arguments described within `main.py`
    Image logging by default is set to 1 but this can be changed to any number by specifying the `batch_frequency` within `main.py`
 
